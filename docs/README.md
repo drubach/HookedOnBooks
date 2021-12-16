@@ -6,7 +6,7 @@ How can we promise that? This platform is meant to allow you the opportunity to 
 
 We want people to be able to share their reviews with others to connect people across the world, instead of divide, which we've seen a lot of lately.
 
-You'll be able to share your reviewss, and save others so you can try them yourself later. What's best, it doesn't cost a thing to become a part of our book community!
+You'll be able to share your reviews, and save others so you can try them yourself later. What's best, it doesn't cost a thing to become a part of our book community!
 
 [Feel free to view the live project here]()!
 
