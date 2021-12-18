@@ -32,7 +32,7 @@ def get_reviews():
 def search():
     """Search function for reviews"""
     query = request.form.get("query")
-    tasks = list(mongo.db.reviews.find({"$text": {"$search": query}}))
+    reviews = list(mongo.db.reviews.find({"$text": {"$search": query}}))
     return render_template("reviews.html", reviews=reviews)
 
 
