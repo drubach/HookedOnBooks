@@ -117,7 +117,7 @@ def add_review():
             "review_content": request.form.get("review_content"),
             "created_by": session["user"]
         }
-        mongo.db.tasks.insert_one(review)
+        mongo.db.reviews.insert_one(review)
         flash("Review Successfully Added")
         return redirect(url_for("get_reviews"))
 
