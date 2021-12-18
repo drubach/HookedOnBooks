@@ -21,19 +21,19 @@ mongo = PyMongo(app, ssl_cert_reqs="CERT_NONE")
 
 
 @app.route("/")
-@app.route("/get_tasks")
-def get_tasks():
-    """Get tasks from Mongo"""
-    tasks = list(mongo.db.tasks.find())
-    return render_template("tasks.html", tasks=tasks)
+@app.route("/get_reviews")
+def get_reviews():
+    """Get reviews from Mongo"""
+    reviews = list(mongo.db.reviews.find())
+    return render_template("reviews.html", reviews=reviews)
 
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    """Search function for tasks"""
+    """Search function for reviews"""
     query = request.form.get("query")
-    tasks = list(mongo.db.tasks.find({"$text": {"$search": query}}))
-    return render_template("tasks.html", tasks=tasks)
+    tasks = list(mongo.db.reviews.find({"$text": {"$search": query}}))
+    return render_template("reviews.html", reviews=reviews)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -104,99 +104,99 @@ def logout():
     session.pop("user")
     return redirect(url_for("login"))
 
-@app.route("/add_task", methods=["GET", "POST"])
-def add_task():
-    """Add task"""
+@app.route("/add_review", methods=["GET", "POST"])
+def add_review():
+    """Add book review function"""
     if request.method == "POST":
-        is_urgent = "on" if request.form.get("is_urgent") else "off"
-        task = {
-            "category_name": request.form.get("category_name"),
-            "task_name": request.form.get("task_name"),
-            "task_description": request.form.get("task_description"),
-            "is_urgent": is_urgent,
-            "due_date": request.form.get("due_date"),
+        is_liked = "on" if request.form.get("is_liked") else "off"
+        review = {
+            "genre_name": request.form.get("genre_name"),
+            "book_title": request.form.get("book_title"),
+            "book_author": request.form.get("book_author"),
+            "is_liked": is_liked,
+            "review_content": request.form.get("review_content"),
             "created_by": session["user"]
         }
-        mongo.db.tasks.insert_one(task)
-        flash("Task Successfully Added")
-        return redirect(url_for("get_tasks"))
+        mongo.db.tasks.insert_one(review)
+        flash("Review Successfully Added")
+        return redirect(url_for("get_reviews"))
 
-    categories = mongo.db.categories.find().sort("category_name", 1)
-    return render_template("add_task.html", categories=categories)
+    genres = mongo.db.genres.find().sort("genres_name", 1)
+    return render_template("add_review.html", genres=genres)
 
 
-@app.route("/edit_task/<task_id>", methods=["GET", "POST"])
-def edit_task(task_id):
-    """Edit task"""
+@app.route("/edit_review/<review_id>", methods=["GET", "POST"])
+def edit_review(review_id):
+    """Edit book review"""
     if request.method == "POST":
-        is_urgent = "on" if request.form.get("is_urgent") else "off"
+        is_liked = "on" if request.form.get("is_liked") else "off"
         submit = {
-            "category_name": request.form.get("category_name"),
-            "task_name": request.form.get("task_name"),
-            "task_description": request.form.get("task_description"),
-            "is_urgent": is_urgent,
-            "due_date": request.form.get("due_date"),
+            "genre_name": request.form.get("genre_name"),
+            "book_title": request.form.get("book_title"),
+            "book_author": request.form.get("book_author"),
+            "is_liked": is_liked,
+            "review_content": request.form.get("review_content"),
             "created_by": session["user"]
         }
-        mongo.db.tasks.update({"_id": ObjectId(task_id)}, submit)
-        flash("Task Successfully Updated")
+        mongo.db.reviews.update({"_id": ObjectId(reviews_id)}, submit)
+        flash("Review Successfully Updated")
 
-    task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
-    categories = mongo.db.categories.find().sort("category_name", 1)
-    return render_template("edit_task.html", task=task, categories=categories)
-
-
-@app.route("/delete_task/<task_id>")
-def delete_task(task_id):
-    """Delete task"""
-    mongo.db.tasks.remove({"_id": ObjectId(task_id)})
-    flash("Task Successfully Deleted")
-    return redirect(url_for("get_tasks"))
+    review = mongo.db.reviews.find_one({"_id": ObjectId(review_id)})
+    genres = mongo.db.genres.find().sort("genre_name", 1)
+    return render_template("edit_review.html", review=review, genres=genres)
 
 
-@app.route("/get_categories")
-def get_categories():
-    """Manage categories function"""
-    categories = list(mongo.db.categories.find().sort("category_name", 1))
-    return render_template("categories.html", categories=categories)
+@app.route("/delete_review/<review_id>")
+def delete_review(review_id):
+    """Delete review function"""
+    mongo.db.reviews.remove({"_id": ObjectId(review_id)})
+    flash("Review Successfully Deleted")
+    return redirect(url_for("get_reviews"))
 
 
-@app.route("/add_category", methods=["GET", "POST"])
-def add_category():
-    """Add category function"""
+@app.route("/get_genres")
+def get_genres():
+    """Manage genres function"""
+    genres = list(mongo.db.genres.find().sort("genre_name", 1))
+    return render_template("genres.html", genres=genres)
+
+
+@app.route("/add_genre", methods=["GET", "POST"])
+def add_genre():
+    """Add genre function"""
     if request.method == "POST":
-        category = {
-            "category_name": request.form.get("category_name")
+        genre = {
+            "genre_name": request.form.get("genre_name")
         }
-        mongo.db.categories.insert_one(category)
-        flash("New Category Added")
-        return redirect(url_for("get_categories"))
+        mongo.db.genres.insert_one(genre)
+        flash("New Genre Added")
+        return redirect(url_for("get_genres"))
 
-    return render_template("add_category.html")
+    return render_template("add_genre.html")
 
-@app.route("/edit_category/<category_id>", methods=["GET", "POST"])
-def edit_category(category_id):
+@app.route("/edit_genre/<genre_id>", methods=["GET", "POST"])
+def edit_genre(genre_id):
     """"Edit category function"""
     if request.method == "POST":
         submit = {
-            "category_name": request.form.get("category_name")
+            "genre_name": request.form.get("genre_name")
         }
-        mongo.db.categories.update({"_id": ObjectId(category_id)}, submit)
-        flash("Category Successfully Updated")
-        return redirect(url_for("get_categories"))
+        mongo.db.genres.update({"_id": ObjectId(genre_id)}, submit)
+        flash("Genre Successfully Updated")
+        return redirect(url_for("get_genres"))
 
-    category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
-    return render_template("edit_category.html", category=category)
+    genre = mongo.db.genres.find_one({"_id": ObjectId(genre_id)})
+    return render_template("edit_genre.html", genre=genre)
 
 
-@app.route("/delete_category/<category_id>")
-def delete_category(category_id):
-    """Delete caegory function"""
-    mongo.db.categories.remove({"_id": ObjectId(category_id)})
-    flash("Category Successfully Deleted")
+@app.route("/delete_genre/<genre_id>")
+def delete_genre(genre_id):
+    """Delete genre function"""
+    mongo.db.genres.remove({"_id": ObjectId(genre_id)})
+    flash("Genre Successfully Deleted")
     return redirect(url_for("get_categories"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
-            debug=True)
+            debug=True) ##############################Turn off for submission!!!!!
