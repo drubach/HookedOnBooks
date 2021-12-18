@@ -229,7 +229,7 @@ If you'd like to have a copy on your local machine, follow the steps below:
 
 #### ReadMe
 
-*   The outline and format for the ReadMe was inspired by [Jake Rubach's MS3 project](https://github.com/StoneMasons4106/connect-recipes). 
+*   The outline and format for the ReadMe was inspired by [Jake Rubach's MS3 project](https://github.com/StoneMasons4106/connect-recipes). I also borrowed his footer which he got from a template.
 
 #### Code
 
