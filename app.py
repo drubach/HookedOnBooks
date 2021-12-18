@@ -176,7 +176,7 @@ def add_genre():
 
 @app.route("/edit_genre/<genre_id>", methods=["GET", "POST"])
 def edit_genre(genre_id):
-    """"Edit category function"""
+    """"Edit genre function"""
     if request.method == "POST":
         submit = {
             "genre_name": request.form.get("genre_name")
@@ -194,7 +194,7 @@ def delete_genre(genre_id):
     """Delete genre function"""
     mongo.db.genres.remove({"_id": ObjectId(genre_id)})
     flash("Genre Successfully Deleted")
-    return redirect(url_for("get_categories"))
+    return redirect(url_for("get_genres"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
