@@ -21,19 +21,19 @@ mongo = PyMongo(app, ssl_cert_reqs="CERT_NONE")
 
 
 @app.route("/")
-@app.route("/get_reviews")
-def get_reviews():
-    """Get reviews from Mongo"""
-    reviews = list(mongo.db.reviews.find())
-    return render_template("reviews.html", reviews=reviews)
+@app.route("/get_books")
+def get_books():
+    """Get books from Mongo"""
+    books = list(mongo.db.books.find())
+    return render_template("books.html", books=books)
 
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
-    """Search function for reviews"""
+    """Search function for books"""
     query = request.form.get("query")
-    reviews = list(mongo.db.reviews.find({"$text": {"$search": query}}))
-    return render_template("reviews.html", reviews=reviews)
+    books = list(mongo.db.books.find({"$text": {"$search": query}}))
+    return render_template("books.html", books=books)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -104,97 +104,97 @@ def logout():
     session.pop("user")
     return redirect(url_for("login"))
 
-@app.route("/add_review", methods=["GET", "POST"])
-def add_review():
-    """Add book review function"""
-    if request.method == "POST":
-        is_liked = "on" if request.form.get("is_liked") else "off"
-        review = {
-            "genre_name": request.form.get("genre_name"),
-            "book_title": request.form.get("book_title"),
-            "book_author": request.form.get("book_author"),
-            "is_liked": is_liked,
-            "review_content": request.form.get("review_content"),
-            "created_by": session["user"]
-        }
-        mongo.db.reviews.insert_one(review)
-        flash("Review Successfully Added")
-        return redirect(url_for("get_reviews"))
+# @app.route("/add_review", methods=["GET", "POST"])
+# def add_review():
+#     """Add book review function"""
+#     if request.method == "POST":
+#         is_liked = "on" if request.form.get("is_liked") else "off"
+#         review = {
+#             "genre_name": request.form.get("genre_name"),
+#             "book_title": request.form.get("book_title"),
+#             "book_author": request.form.get("book_author"),
+#             "is_liked": is_liked,
+#             "review_content": request.form.get("review_content"),
+#             "created_by": session["user"]
+#         }
+#         mongo.db.reviews.insert_one(review)
+#         flash("Review Successfully Added")
+#         return redirect(url_for("get_reviews"))
 
-    genres = mongo.db.genres.find().sort("genres_name", 1)
-    return render_template("add_review.html", genres=genres)
-
-
-@app.route("/edit_review/<review_id>", methods=["GET", "POST"])
-def edit_review(review_id):
-    """Edit book review"""
-    if request.method == "POST":
-        is_liked = "on" if request.form.get("is_liked") else "off"
-        submit = {
-            "genre_name": request.form.get("genre_name"),
-            "book_title": request.form.get("book_title"),
-            "book_author": request.form.get("book_author"),
-            "is_liked": is_liked,
-            "review_content": request.form.get("review_content"),
-            "created_by": session["user"]
-        }
-        mongo.db.reviews.update({"_id": ObjectId(reviews_id)}, submit)
-        flash("Review Successfully Updated")
-
-    review = mongo.db.reviews.find_one({"_id": ObjectId(review_id)})
-    genres = mongo.db.genres.find().sort("genre_name", 1)
-    return render_template("edit_review.html", review=review, genres=genres)
+#     genres = mongo.db.genres.find().sort("genres_name", 1)
+#     return render_template("add_review.html", genres=genres)
 
 
-@app.route("/delete_review/<review_id>")
-def delete_review(review_id):
-    """Delete review function"""
-    mongo.db.reviews.remove({"_id": ObjectId(review_id)})
-    flash("Review Successfully Deleted")
-    return redirect(url_for("get_reviews"))
+# @app.route("/edit_review/<review_id>", methods=["GET", "POST"])
+# def edit_review(review_id):
+#     """Edit book review"""
+#     if request.method == "POST":
+#         is_liked = "on" if request.form.get("is_liked") else "off"
+#         submit = {
+#             "genre_name": request.form.get("genre_name"),
+#             "book_title": request.form.get("book_title"),
+#             "book_author": request.form.get("book_author"),
+#             "is_liked": is_liked,
+#             "review_content": request.form.get("review_content"),
+#             "created_by": session["user"]
+#         }
+#         mongo.db.reviews.update({"_id": ObjectId(review_id)}, submit)
+#         flash("Review Successfully Updated")
+
+#     review = mongo.db.reviews.find_one({"_id": ObjectId(review_id)})
+#     genres = mongo.db.genres.find().sort("genre_name", 1)
+#     return render_template("edit_review.html", review=review, genres=genres)
 
 
-@app.route("/get_genres")
-def get_genres():
-    """Manage genres function"""
-    genres = list(mongo.db.genres.find().sort("genre_name", 1))
-    return render_template("genres.html", genres=genres)
+# @app.route("/delete_review/<review_id>")
+# def delete_review(review_id):
+#     """Delete review function"""
+#     mongo.db.reviews.remove({"_id": ObjectId(review_id)})
+#     flash("Review Successfully Deleted")
+#     return redirect(url_for("get_reviews"))
 
 
-@app.route("/add_genre", methods=["GET", "POST"])
-def add_genre():
-    """Add genre function"""
-    if request.method == "POST":
-        genre = {
-            "genre_name": request.form.get("genre_name")
-        }
-        mongo.db.genres.insert_one(genre)
-        flash("New Genre Added")
-        return redirect(url_for("get_genres"))
-
-    return render_template("add_genre.html")
-
-@app.route("/edit_genre/<genre_id>", methods=["GET", "POST"])
-def edit_genre(genre_id):
-    """"Edit genre function"""
-    if request.method == "POST":
-        submit = {
-            "genre_name": request.form.get("genre_name")
-        }
-        mongo.db.genres.update({"_id": ObjectId(genre_id)}, submit)
-        flash("Genre Successfully Updated")
-        return redirect(url_for("get_genres"))
-
-    genre = mongo.db.genres.find_one({"_id": ObjectId(genre_id)})
-    return render_template("edit_genre.html", genre=genre)
+# @app.route("/get_genres")
+# def get_genres():
+#     """Manage genres function"""
+#     genres = list(mongo.db.genres.find().sort("genre_name", 1))
+#     return render_template("genres.html", genres=genres)
 
 
-@app.route("/delete_genre/<genre_id>")
-def delete_genre(genre_id):
-    """Delete genre function"""
-    mongo.db.genres.remove({"_id": ObjectId(genre_id)})
-    flash("Genre Successfully Deleted")
-    return redirect(url_for("get_genres"))
+# @app.route("/add_genre", methods=["GET", "POST"])
+# def add_genre():
+#     """Add genre function"""
+#     if request.method == "POST":
+#         genre = {
+#             "genre_name": request.form.get("genre_name")
+#         }
+#         mongo.db.genres.insert_one(genre)
+#         flash("New Genre Added")
+#         return redirect(url_for("get_genres"))
+
+#     return render_template("add_genre.html")
+
+# @app.route("/edit_genre/<genre_id>", methods=["GET", "POST"])
+# def edit_genre(genre_id):
+#     """"Edit genre function"""
+#     if request.method == "POST":
+#         submit = {
+#             "genre_name": request.form.get("genre_name")
+#         }
+#         mongo.db.genres.update({"_id": ObjectId(genre_id)}, submit)
+#         flash("Genre Successfully Updated")
+#         return redirect(url_for("get_genres"))
+
+#     genre = mongo.db.genres.find_one({"_id": ObjectId(genre_id)})
+#     return render_template("edit_genre.html", genre=genre)
+
+
+# @app.route("/delete_genre/<genre_id>")
+# def delete_genre(genre_id):
+#     """Delete genre function"""
+#     mongo.db.genres.remove({"_id": ObjectId(genre_id)})
+#     flash("Genre Successfully Deleted")
+#     return redirect(url_for("get_genres"))
 
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
