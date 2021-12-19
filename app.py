@@ -82,7 +82,6 @@ def login():
                 session["user"] = request.form.get("username").lower()
                 flash("Welcome, {}".format(request.form.get("username")))
                 return render_template("books.html")
-                #redirect(url_for("profile", username=session["user"]))
             else:
                 # invalid password match
                 flash("Incorrect Username and/or Password")
@@ -102,6 +101,35 @@ def profile(username):
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
     return render_template("profile.html", username=username)
+
+
+@app.route("/profile_edit/<username>", methods=["GET", "POST"])
+def profile_edit(username):
+    """Edit profile"""
+    if request.method == "POST":
+        user = mongo.db.users.find_one(
+            {"username": request.form.get("username")})
+        userID = user[ObjectId].str()
+        submit = {
+            "username": request.form.get("username"),
+            "password": generate_password_hash(request.form.get("password")),
+            }
+        mongo.db.users.update({"_id": ObjectId(userID)}, submit)
+        session.pop("user")
+        session["user"] = request.form.get("username").lower()
+        flash("Profile Successfully Updated")
+        username = mongo.db.users.find_one(
+            {"username": session["user"]})["username"]
+    return render_template("profile_edit.html", username=username)
+
+
+# @app.route("/profile_delete/<username>")
+# def delete_profile(username):
+#     """Delete profile"""
+#     mongo.db.users.remove({"_id": ObjectId(username)})
+#     flash("Profile Successfully Deleted")
+#     session.pop("user")
+#     return redirect(url_for("get_books"))
 
 
 @app.route("/logout")
