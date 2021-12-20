@@ -98,6 +98,7 @@ def login():
 @app.route("/profile/<username>", methods=["GET", "POST"])
 def profile(username):
     """grab the session user's username from db"""
+    #user = mongo.db.users.find_one({"_id", ObjectId(user_id)})
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
     return render_template("profile.html", username=username)
@@ -106,30 +107,38 @@ def profile(username):
 @app.route("/profile_edit/<username>", methods=["GET", "POST"])
 def profile_edit(username):
     """Edit profile"""
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
+    
     if request.method == "POST":
-        user = mongo.db.users.find_one(
-            {"username": request.form.get("username")})
-        userID = user[ObjectId].str()
-        submit = {
-            "username": request.form.get("username"),
-            "password": generate_password_hash(request.form.get("password")),
-            }
-        mongo.db.users.update({"_id": ObjectId(userID)}, submit)
+        # check if username already exists in db
+        existing_user = mongo.db.users.find_one(
+            {"username": request.form.get("username").lower()})
+
+        if existing_user:
+            flash("Username already exists, choose another")
+            return redirect(url_for("profile_edit", username=username))
+
+        register_update = {
+            "username": request.form.get("username").lower(),
+            "password": generate_password_hash(request.form.get("password"))
+        }
+        mongo.db.users.update({"_id": ObjectId(user_id)}, register_update)
+        #remove user from 'session' cookie
         session.pop("user")
-        session["user"] = request.form.get("username").lower()
-        flash("Profile Successfully Updated")
-        username = mongo.db.users.find_one(
-            {"username": session["user"]})["username"]
+        flash("Update Successful!")
+        return redirect(url_for("login"))
+    print(user_id)
     return render_template("profile_edit.html", username=username)
 
 
-# @app.route("/profile_delete/<username>")
-# def delete_profile(username):
-#     """Delete profile"""
-#     mongo.db.users.remove({"_id": ObjectId(username)})
-#     flash("Profile Successfully Deleted")
-#     session.pop("user")
-#     return redirect(url_for("get_books"))
+@app.route("/profile_delete")
+def profile_delete():
+    """Delete profile"""
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
+    mongo.db.users.remove({"_id": ObjectId(user_id)})
+    flash("Profile Successfully Deleted")
+    session.pop("user")
+    return redirect(url_for("get_books"))
 
 
 @app.route("/logout")
