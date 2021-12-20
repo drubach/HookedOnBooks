@@ -50,9 +50,9 @@ def book_add():
 @app.route("/book_edit/<book_title>", methods=["GET", "POST"])
 def book_edit(book_title):
     """Edit book information"""
-    book_id = mongo.db.books.find_one({"book_title": book_title})["_id"] 
+    book_id = mongo.db.books.find_one({"book_title": book_title})["_id"]
     book_author = mongo.db.books.find_one({"book_title": book_title})["book_author"]
-    book_descripiton = mongo.db.books.find_one({"book_title": book_title})["book_description"]
+    book_descripition = mongo.db.books.find_one({"book_title": book_title})["book_description"]
     user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
     if request.method == "POST":
         register_update = {
@@ -71,9 +71,8 @@ def book_edit(book_title):
 @app.route("/book_delete/<book_id>")
 def book_delete(book_id):
     """Delete a book"""
-    #book_id = mongo.db.books.find_one({"book_title": book_title})["_id"]
     mongo.db.books.remove({"_id": ObjectId(book_id)})
-    flash("Book & Associated Reviews Successfully Deleted")
+    flash("Book Successfully Deleted")
     return redirect(url_for("get_books"))
 
 
@@ -155,8 +154,7 @@ def profile(username):
 @app.route("/profile_edit/<username>", methods=["GET", "POST"])
 def profile_edit(username):
     """Edit profile"""
-    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"] 
-
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
     if request.method == "POST":
         # check if username already exists in db
         existing_user = mongo.db.users.find_one(
