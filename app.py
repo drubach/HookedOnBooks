@@ -1,6 +1,7 @@
 """Main app"""
 
 import os
+import datetime
 from flask import (
     Flask, flash, render_template,
     redirect, request, session, url_for)
@@ -26,6 +27,54 @@ def get_books():
     """Get books from Mongo"""
     books = list(mongo.db.books.find())
     return render_template("books.html", books=books)
+
+
+@app.route("/book_add", methods=["GET", "POST"])
+def book_add():
+    """book_add"""
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
+    if request.method == "POST":
+        book = {
+            "book_title": request.form.get("book_title"),
+            "book_author": request.form.get("book_author"),
+            "book_description": request.form.get("book_description"),
+            "added_date": datetime.datetime.now(),
+            "added_by": ObjectId(user_id)
+        }
+        mongo.db.books.insert_one(book)
+        flash("Book Successfully Added")
+        return redirect(url_for("get_books"))
+    return render_template("book_add.html")
+
+
+@app.route("/book_edit/<book_title>", methods=["GET", "POST"])
+def book_edit(book_title):
+    """Edit book information"""
+    book_id = mongo.db.books.find_one({"book_title": book_title})["_id"] 
+    book_author = mongo.db.books.find_one({"book_title": book_title})["book_author"]
+    book_descripiton = mongo.db.books.find_one({"book_title": book_title})["book_description"]
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
+    if request.method == "POST":
+        register_update = {
+            "book_title": request.form.get("book_title"),
+            "book_author": request.form.get("book_author"),
+            "book_description": request.form.get("book_description"),
+            "added_date": datetime.datetime.now(),
+            "added_by": ObjectId(user_id)
+        }
+        mongo.db.books.update({"_id": ObjectId(book_id)}, register_update)
+        flash("Update Successful!")
+        return redirect(url_for("get_books"))
+    return render_template("book_edit.html", book_title=book_title, book_author=book_author,)
+
+
+@app.route("/book_delete/<book_id>")
+def book_delete(book_id):
+    """Delete a book"""
+    #book_id = mongo.db.books.find_one({"book_title": book_title})["_id"]
+    mongo.db.books.remove({"_id": ObjectId(book_id)})
+    flash("Book & Associated Reviews Successfully Deleted")
+    return redirect(url_for("get_books"))
 
 
 @app.route("/about")
@@ -81,7 +130,7 @@ def login():
                 existing_user["password"], request.form.get("password")):
                 session["user"] = request.form.get("username").lower()
                 flash("Welcome, {}".format(request.form.get("username")))
-                return render_template("books.html")
+                return redirect(url_for("get_books"))
             else:
                 # invalid password match
                 flash("Incorrect Username and/or Password")
@@ -98,7 +147,6 @@ def login():
 @app.route("/profile/<username>", methods=["GET", "POST"])
 def profile(username):
     """grab the session user's username from db"""
-    #user = mongo.db.users.find_one({"_id", ObjectId(user_id)})
     username = mongo.db.users.find_one(
         {"username": session["user"]})["username"]
     return render_template("profile.html", username=username)
@@ -107,14 +155,14 @@ def profile(username):
 @app.route("/profile_edit/<username>", methods=["GET", "POST"])
 def profile_edit(username):
     """Edit profile"""
-    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"]
-    
+    user_id = mongo.db.users.find_one({"username": session["user"]})["_id"] 
+
     if request.method == "POST":
         # check if username already exists in db
         existing_user = mongo.db.users.find_one(
             {"username": request.form.get("username").lower()})
 
-        if existing_user:
+        if existing_user and session["user"] != existing_user["username"]:
             flash("Username already exists, choose another")
             return redirect(url_for("profile_edit", username=username))
 
@@ -127,7 +175,7 @@ def profile_edit(username):
         session.pop("user")
         flash("Update Successful!")
         return redirect(url_for("login"))
-    print(user_id)
+
     return render_template("profile_edit.html", username=username)
 
 
