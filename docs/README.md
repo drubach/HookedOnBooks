@@ -229,7 +229,7 @@ If you'd like to have a copy on your local machine, follow the steps below:
 
 #### Media
 
-* 1 image is saved to use a background in future upgrades. [library-shelves](https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bGlicmFyeXxlbnwwfHwwfHw%3D&w=1000&q=80 (Library shelves)/).
+* 1 image is saved to use a background in future upgrades. [library-shelves](https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bGlicmFyeXxlbnwwfHwwfHw%3D&w=1000&q=80).
 
 #### Content
 
