@@ -241,6 +241,8 @@ If you'd like to have a copy on your local machine, follow the steps below:
 
 #### Code
 
+* The majority of the code in this project is taken from the mini-project and just tweaked to do what I wanted it to do. Thanks to the instructors for this!!
+
 * I also borrowed his part of his footer which he got from a template. [Jake Rubach's MS3 project](https://github.com/StoneMasons4106/connect-recipes)
 
 * To get an automatic time and date stamp, I used the package 'datetime' and got the code to implement it from this [site](https://www.geeksforgeeks.org/get-utc-timestamp-in-python/) .
